@@ -20,7 +20,8 @@ plan qw/no_plan/;
 
     my $truth = True::Truth->new();
 
-    $truth->add_true_truth( $key, $a );
+    my $z = $truth->add_true_truth( $key, $a );
+    cmp_ok($z, '==', 0);
     my $d = $truth->get_true_truth($key);
     ok($d);
     cmp_deeply(
@@ -32,7 +33,8 @@ plan qw/no_plan/;
         }
     );
     print Dumper $d;
-    $truth->add_true_truth( $key, $b );
+    my $y = $truth->add_true_truth( $key, $b );
+    cmp_ok($y, '==', 1);
     $d = $truth->get_true_truth($key);
     ok($d);
     cmp_deeply(
@@ -50,7 +52,8 @@ plan qw/no_plan/;
         }
     );
     print Dumper $d;
-    $truth->add_pending_truth( $key, $c );
+    my $x = $truth->add_pending_truth( $key, $c );
+    cmp_ok($x, '==', 2);
     $d = $truth->get_true_truth($key);
     ok($d);
     cmp_deeply(
@@ -66,4 +69,35 @@ plan qw/no_plan/;
         }
     );
     print Dumper $d;
+    $truth->persist_pending_truth( $key, $x );
+    $d = $truth->get_true_truth($key);
+    ok($d);
+    cmp_deeply(
+        $d,
+        {
+            owner  => 'lenz',
+            domain => 'norbu09.org',
+            dns    => {
+                rr     => { 'norbu09.org' => '1.2.3.5', type => 'A' },
+            },
+            status => 'active'
+        }
+    );
+    print Dumper $d;
+    $truth->remove_pending_truth( $key, $x );
+    $d = $truth->get_true_truth($key);
+    ok($d);
+    cmp_deeply(
+        $d,
+        {
+            owner  => 'lenz',
+            domain => 'norbu09.org',
+            dns    => {
+                rr     => { 'norbu09.org' => '1.2.3.4', type => 'A' },
+            },
+            status => 'active'
+        }
+    );
+    print Dumper $d;
+
 }

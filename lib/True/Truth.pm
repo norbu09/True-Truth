@@ -32,7 +32,7 @@ has 'redis' => (
 sub add_true_truth {
     my ($self, $key, $truth) = @_;
 
-    return $self->_add($key, $truth);
+    return $self->_add($key, $truth) -1;
 }
 
 sub add_pending_truth {
@@ -41,11 +41,25 @@ sub add_pending_truth {
     foreach my $ky (keys %$truth){
         $truth->{$ky}->{_truth} = 'pending';
     }
-    return $self->_add($key, $truth);
+    return $self->_add($key, $truth) -1;
 }
 
-sub update_pending_truth {
+sub persist_pending_truth {
+    my ($self, $key, $index) = @_;
 
+    my $truth = $self->_get($key, $index);
+    foreach my $ky (keys %$truth){
+        delete $truth->{$ky}->{_truth};
+    }
+    $self->_add($key, $truth, $index);
+    return;
+}
+
+sub remove_pending_truth {
+    my ($self, $key, $index) = @_;
+
+    $self->_add($key, {}, $index);
+    return;
 }
 
 sub get_true_truth {
@@ -88,9 +102,13 @@ sub merge (@) {
 #### internal stuff ####
 
 sub _add {
-    my ($self, $key, $val) = @_;
+    my ($self, $key, $val, $index) = @_;
     $self->redis->ping || $self->_connect_redis;
-    return $self->redis->rpush($key, encode_base64(nfreeze($val)));
+    if($index){
+        return $self->redis->lset($key, $index, encode_base64(nfreeze($val)));
+    } else {
+        return $self->redis->rpush($key, encode_base64(nfreeze($val)));
+    }
 }
 
 sub _get {
