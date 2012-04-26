@@ -28,12 +28,45 @@ has 'redis' => (
     lazy    => 1,
 );
 
+=head1 NAME
+
+True::Truth - The one True::Truth!
+
+=head1 VERSION
+
+Version 0.1.1.1.1.1.1
+
+=head1 SYNOPSIS
+
+Quick summary of what the module does.
+
+Perhaps a little code snippet.
+
+    use True::Truth;
+
+    my $foo = True::Truth->new();
+    ...
+
+
+=head1 FUNCTIONS
+
+=head2 add_true_truth
+
+needs docs
+
+=cut
 
 sub add_true_truth {
     my ($self, $key, $truth) = @_;
 
     return $self->_add($key, $truth) -1;
 }
+
+=head2 add_pending_truth
+
+needs docs
+
+=cut
 
 sub add_pending_truth {
     my ($self, $key, $truth) = @_;
@@ -43,6 +76,12 @@ sub add_pending_truth {
     }
     return $self->_add($key, $truth) -1;
 }
+
+=head2 persist_pending_truth
+
+needs docs
+
+=cut
 
 sub persist_pending_truth {
     my ($self, $key, $index) = @_;
@@ -55,12 +94,24 @@ sub persist_pending_truth {
     return;
 }
 
+=head2 remove_pending_truth
+
+needs docs
+
+=cut
+
 sub remove_pending_truth {
     my ($self, $key, $index) = @_;
 
     $self->_add($key, {}, $index);
     return;
 }
+
+=head2 get_true_truth
+
+needs docs
+
+=cut
 
 sub get_true_truth {
     my ($self, $key) = @_;
@@ -69,6 +120,12 @@ sub get_true_truth {
     my $truth = merge(@$all_truth);
     return $truth;
 }
+
+=head2 merge
+
+needs docs
+
+=cut
 
 # This was stolen from Catalyst::Utils... thanks guys!
 sub merge (@);
@@ -134,26 +191,6 @@ sub _connect_redis {
     my ($self) = @_;
     return Redis->new($self->redis_server);
 }
-
-=head1 NAME
-
-True::Truth - The one True::Truth!
-
-=head1 VERSION
-
-Version 0.1
-
-=head1 SYNOPSIS
-
-Quick summary of what the module does.
-
-Perhaps a little code snippet.
-
-    use True::Truth;
-
-    my $foo = True::Truth->new();
-    ...
-
 
 =head1 AUTHOR
 
