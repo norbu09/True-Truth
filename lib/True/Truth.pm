@@ -168,7 +168,7 @@ sub merge (@) {
 
 sub _add {
     my ($self, $key, $val, $index) = @_;
-    $self->redis->ping || $self->_connect_redis;
+    $self->_connect_redis;
     my $idx;
     if($index){
         $idx = $index;
@@ -185,7 +185,7 @@ sub _add {
 sub _get {
     my ($self, $key, $index) = @_;
 
-    $self->redis->ping || $self->_connect_redis;
+    $self->_connect_redis;
     if($index){
         my $val = $self->redis->lindex($key, $index);
         return thaw(decode_base64($val))
