@@ -1,6 +1,9 @@
 Revision history for True-Truth
 
 
+0.3     2012-05-04T13:45:18
+        small patch for redis connection handling
+
 0.2     2012-04-30T13:27:18
         added autoexpire support for cached keys (defaults to 1 hour)
 

@@ -6,7 +6,7 @@ use Any::Moose;
 use MIME::Base64 qw(encode_base64 decode_base64);
 use Storable qw/nfreeze thaw/;
 
-our $VERSION = '0.2';
+our $VERSION = '0.3';
 
 has 'debug' => (
     is      => 'rw',
@@ -42,7 +42,7 @@ True::Truth - The one True::Truth!
 
 =head1 VERSION
 
-Version 0.2.1.1.1.1.1.1
+Version 0.3.2.1.1.1.1.1.1
 
 =head1 SYNOPSIS
 
