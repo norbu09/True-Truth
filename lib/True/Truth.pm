@@ -42,7 +42,7 @@ True::Truth - The one True::Truth!
 
 =head1 VERSION
 
-Version 0.3.2.1.1.1.1.1.1
+Version 0.3
 
 =head1 SYNOPSIS
 
@@ -80,7 +80,11 @@ sub add_pending_truth {
     my ($self, $key, $truth) = @_;
 
     foreach my $ky (keys %$truth){
-        $truth->{$ky}->{_truth} = 'pending';
+        if(ref($truth->{$ky}) eq 'HASH'){
+            $truth->{$ky}->{_truth} = 'pending';
+        } else {
+            $truth->{_truth} = 'pending';
+        }
     }
     return int $self->_add($key, $truth);
 }
@@ -96,7 +100,11 @@ sub persist_pending_truth {
 
     my $truth = $self->_get($key, $index);
     foreach my $ky (keys %$truth){
-        delete $truth->{$ky}->{_truth};
+        if(ref($truth->{$ky}) eq 'HASH'){
+            delete $truth->{$ky}->{_truth};
+        } else {
+            delete $truth->{_truth};
+        }
     }
     $self->_add($key, $truth, $index);
     return;
