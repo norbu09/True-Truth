@@ -1,5 +1,7 @@
 Revision history for True-Truth
 
+0.4     2012-05-08T08:37:02
+        fixed the pending flag for shallow hash structures
 
 0.3     2012-05-04T13:45:18
         small patch for redis connection handling
