@@ -81,9 +81,9 @@ sub add_pending_truth {
 
     foreach my $ky (keys %$truth){
         if(ref($truth->{$ky}) eq 'HASH'){
-            $truth->{$ky}->{_truth} = 'pending';
+            $truth->{$ky}->{_locked} = 1;
         } else {
-            $truth->{_truth} = 'pending';
+            $truth->{_locked} = 1;
         }
     }
     return int $self->_add($key, $truth);
@@ -101,9 +101,9 @@ sub persist_pending_truth {
     my $truth = $self->_get($key, $index);
     foreach my $ky (keys %$truth){
         if(ref($truth->{$ky}) eq 'HASH'){
-            delete $truth->{$ky}->{_truth};
+            delete $truth->{$ky}->{_locked};
         } else {
-            delete $truth->{_truth};
+            delete $truth->{_locked};
         }
     }
     $self->_add($key, $truth, $index);
