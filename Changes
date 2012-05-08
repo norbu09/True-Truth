@@ -1,5 +1,8 @@
 Revision history for True-Truth
 
+0.6     2012-05-09T07:26:47
+        fixed tests
+
 0.5     2012-05-08T12:07:39
         changed the _truth hash key to _locked
 

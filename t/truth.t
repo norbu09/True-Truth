@@ -73,7 +73,7 @@ plan qw/no_plan/;
                 domain => 'norbu09.org',
                 dns    => {
                     rr     => { 'norbu09.org' => '1.2.3.5', type => 'A' },
-                    _truth => 'pending'
+                    _locked => 1
                 },
                 status => 'active'
             },
