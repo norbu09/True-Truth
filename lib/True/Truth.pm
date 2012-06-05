@@ -211,7 +211,7 @@ sub _get {
 
 sub _connect_redis {
     my ($self) = @_;
-    return Redis->new($self->redis_server);
+    return Redis->new(server => $self->redis_server, debug => $self->debug);
 }
 
 =head1 AUTHOR
