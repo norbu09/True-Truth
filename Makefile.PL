@@ -12,7 +12,5 @@ requires 'Storable';
 requires 'MIME::Base64';
 requires 'Any::Moose';
 
-auto_install;
-
 WriteAll;
 
