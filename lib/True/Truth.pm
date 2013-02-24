@@ -6,12 +6,12 @@ use Any::Moose;
 use MIME::Base64 qw(encode_base64 decode_base64);
 use Storable qw/nfreeze thaw/;
 
-our $VERSION = '0.7';
+our $VERSION = '0.8';
 
 has 'debug' => (
     is      => 'rw',
     isa     => 'Bool',
-    default => 0,
+    default => sub { 0 },
     lazy    => 1,
 );
 
@@ -34,15 +34,13 @@ has 'expire' => (
     default => '3600',
 );
 
-
-
 =head1 NAME
 
 True::Truth - The one True::Truth!
 
 =head1 VERSION
 
-Version 0.7.6.5.4.3
+Version 0.8
 
 =head1 SYNOPSIS
 
@@ -79,10 +77,13 @@ needs docs
 sub add_pending_truth {
     my ($self, $key, $truth) = @_;
 
-    foreach my $ky (keys %$truth){
-        if(ref($truth->{$ky}) eq 'HASH'){
+    return unless ref $truth eq 'HASH';
+
+    foreach my $ky (keys %$truth) {
+        if (ref($truth->{$ky}) eq 'HASH') {
             $truth->{$ky}->{_locked} = 1;
-        } else {
+        }
+        else {
             $truth->{_locked} = 1;
         }
     }
@@ -99,10 +100,14 @@ sub persist_pending_truth {
     my ($self, $key, $index) = @_;
 
     my $truth = $self->_get($key, $index);
-    foreach my $ky (keys %$truth){
-        if(ref($truth->{$ky}) eq 'HASH'){
-            delete $truth->{$ky}->{_locked};
-        } else {
+
+    return unless ref $truth eq 'HASH';
+
+    foreach my $k (keys %$truth) {
+        if (ref($truth->{$k}) eq 'HASH') {
+            delete $truth->{$k}->{_locked};
+        }
+        else {
             delete $truth->{_locked};
         }
     }
@@ -133,7 +138,7 @@ sub get_true_truth {
     my ($self, $key) = @_;
 
     my $all_truth = $self->_get($key);
-    my $truth = merge(@$all_truth);
+    my $truth     = merge(@$all_truth);
     return $truth;
 }
 
@@ -145,30 +150,33 @@ needs docs
 
 # This was stolen from Catalyst::Utils... thanks guys!
 sub merge (@);
+
 sub merge (@) {
-    shift unless ref $_[0]; # Take care of the case we're called like Hash::Merge::Simple->merge(...)
+    shift
+        unless ref $_[0]
+    ;  # Take care of the case we're called like Hash::Merge::Simple->merge(...)
     my ($left, @right) = @_;
- 
+
     return $left unless @right;
- 
+
     return merge($left, merge(@right)) if @right > 1;
- 
+
     my ($right) = @right;
- 
+
     my %merge = %$left;
- 
+
     for my $key (keys %$right) {
- 
+
         my ($hr, $hl) = map { ref $_->{$key} eq 'HASH' } $right, $left;
- 
-        if ($hr and $hl){
+
+        if ($hr and $hl) {
             $merge{$key} = merge($left->{$key}, $right->{$key});
         }
         else {
             $merge{$key} = $right->{$key};
         }
     }
-     
+
     return \%merge;
 }
 
@@ -176,12 +184,13 @@ sub merge (@) {
 
 sub _add {
     my ($self, $key, $val, $index) = @_;
-    $self->_connect_redis;
+
     my $idx;
-    if($index){
+    if ($index) {
         $idx = $index;
         $self->redis->lset($key, $index, encode_base64(nfreeze($val)));
-    } else {
+    }
+    else {
         $idx = $self->redis->rpush($key, encode_base64(nfreeze($val)));
         $idx -= 1;
     }
@@ -193,15 +202,15 @@ sub _add {
 sub _get {
     my ($self, $key, $index) = @_;
 
-    $self->_connect_redis;
-    if($index){
+    if ($index) {
         my $val = $self->redis->lindex($key, $index);
         return thaw(decode_base64($val))
             if $val;
-    } else {
+    }
+    else {
         my @data = $self->redis->lrange($key, 0, -1);
         my @res;
-        foreach my $val (@data){
+        foreach my $val (@data) {
             push(@res, thaw(decode_base64($val)));
         }
         return \@res;
@@ -211,7 +220,13 @@ sub _get {
 
 sub _connect_redis {
     my ($self) = @_;
-    return Redis->new(server => $self->redis_server, debug => $self->debug);
+    return Redis->new(
+        server    => $self->redis_server,
+        reconnect => 10,
+        every     => 200,
+        encoding  => undef,
+        debug     => $self->debug,
+    );
 }
 
 =head1 AUTHOR
@@ -271,4 +286,4 @@ See http://dev.perl.org/licenses/ for more information.
 
 =cut
 
-1; # This is the end of True::Truth
+1;    # This is the end of True::Truth
