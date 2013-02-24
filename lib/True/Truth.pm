@@ -40,7 +40,7 @@ True::Truth - The one True::Truth!
 
 =head1 VERSION
 
-Version 0.8
+Version 0.8.8.8.8.8
 
 =head1 SYNOPSIS
 
