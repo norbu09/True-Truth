@@ -3,7 +3,23 @@ Changes from 2013-01-23 00:00:00 +0000 to present.
 ==================================================
 
 ----------------------------------------
-version 0.9 at 2014-01-23 05:51:32 +0000
+version 1.0 at 2014-01-23 05:54:08 +0000
+----------------------------------------
+
+  Change: 086f7d9902acb7ef7b970a2000dbf675031a42c9
+  Author: Lenz Gschwendtner <lenz@springtimesoft.com>
+  Date : 2014-01-23 18:54:01 +0000
+
+    make sure we have everything in the right order 
+
+  Change: 1622d45c40c7e49458e3ec66961c0366d5003460
+  Author: Lenz Gschwendtner <lenz@springtimesoft.com>
+  Date : 2014-01-23 18:51:49 +0000
+
+    v0.9 
+
+----------------------------------------
+version 0.9 at 2014-01-23 05:49:41 +0000
 ----------------------------------------
 
   Change: 57f161e40977f3ff4a633e6e42012ba1669dc587

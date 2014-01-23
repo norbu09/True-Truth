@@ -9,7 +9,7 @@ use Data::Dump qw/dump/;
 
 # ABSTRACT: merge multiple versions of truth into one
 #
-our $VERSION = '0.9'; # VERSION
+our $VERSION = '1.0'; # VERSION
 
 has 'debug' => (
     is      => 'rw',
@@ -179,7 +179,7 @@ sub _get {
     else {
         my $data = $self->kt->match_prefix($key);
         my @res;
-        foreach my $val (keys %{$data}) {
+        foreach my $val (sort keys %{$data}) {
             push(@res, thaw(decode_base64($self->kt->get($val))));
         }
         return \@res;
@@ -212,7 +212,7 @@ True::Truth - merge multiple versions of truth into one
 
 =head1 VERSION
 
-version 0.9
+version 1.0
 
 =head1 SYNOPSIS
 
