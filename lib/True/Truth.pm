@@ -9,7 +9,7 @@ use Data::Dump qw/dump/;
 
 # ABSTRACT: merge multiple versions of truth into one
 #
-our $VERSION = '0.1'; # VERSION
+our $VERSION = '0.9'; # VERSION
 
 has 'debug' => (
     is      => 'rw',
@@ -212,7 +212,7 @@ True::Truth - merge multiple versions of truth into one
 
 =head1 VERSION
 
-version 0.1
+version 0.9
 
 =head1 SYNOPSIS
 
