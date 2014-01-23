@@ -9,7 +9,7 @@ use Data::Dump qw/dump/;
 
 # ABSTRACT: merge multiple versions of truth into one
 #
-our $VERSION = '1.0'; # VERSION
+our $VERSION = '1.1'; # VERSION
 
 has 'debug' => (
     is      => 'rw',
@@ -106,7 +106,7 @@ sub persist_pending_truth {
 sub remove_pending_truth {
     my ($self, $key, $index) = @_;
 
-    $self->_add($key, {}, $index);
+    $self->_del($key, $index);
     return;
 }
 
@@ -187,6 +187,21 @@ sub _get {
     return;
 }
 
+sub _del {
+    my ($self, $key, $index) = @_;
+
+    if ($index) {
+        $self->kt->remove("$key.$index");
+    }
+    else {
+        my $data = $self->kt->match_prefix($key);
+        foreach my $val (sort keys %{$data}) {
+            $self->kt->remove($val);
+        }
+    }
+    return;
+}
+
 sub _connect_kt {
     my ($self) = @_;
     return Cache::KyotoTycoon->new(
@@ -212,7 +227,7 @@ True::Truth - merge multiple versions of truth into one
 
 =head1 VERSION
 
-version 1.0
+version 1.1
 
 =head1 SYNOPSIS
 
@@ -231,7 +246,7 @@ True::Truth - The one True::Truth!
 
 =head1 VERSION
 
-Version 0.8.8.8.8.8
+# VERSION
 
 =head1 FUNCTIONS
 

@@ -3,7 +3,23 @@ Changes from 2013-01-23 00:00:00 +0000 to present.
 ==================================================
 
 ----------------------------------------
-version 1.0 at 2014-01-23 05:54:08 +0000
+version 1.1 at 2014-01-23 06:00:21 +0000
+----------------------------------------
+
+  Change: 15860f2bf88ac6b5a678f5bb613ec9e8c2ebdd96
+  Author: Lenz Gschwendtner <lenz@springtimesoft.com>
+  Date : 2014-01-23 19:00:14 +0000
+
+    now that we have kyoto we can actually remove stuff 
+
+  Change: 88f5976ab9dfc5ab6d0944dbd074985abd7e1c36
+  Author: Lenz Gschwendtner <lenz@springtimesoft.com>
+  Date : 2014-01-23 18:54:27 +0000
+
+    v1.0 
+
+----------------------------------------
+version 1.0 at 2014-01-23 05:54:01 +0000
 ----------------------------------------
 
   Change: 086f7d9902acb7ef7b970a2000dbf675031a42c9
