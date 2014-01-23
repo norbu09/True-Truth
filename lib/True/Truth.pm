@@ -64,7 +64,7 @@ True::Truth - The one True::Truth!
 
 =head1 VERSION
 
-Version 0.8.8.8.8.8
+# VERSION
 
 =head1 SYNOPSIS
 
@@ -148,7 +148,7 @@ needs docs
 sub remove_pending_truth {
     my ($self, $key, $index) = @_;
 
-    $self->_add($key, {}, $index);
+    $self->_del($key, $index);
     return;
 }
 
@@ -235,6 +235,21 @@ sub _get {
             push(@res, thaw(decode_base64($self->kt->get($val))));
         }
         return \@res;
+    }
+    return;
+}
+
+sub _del {
+    my ($self, $key, $index) = @_;
+
+    if ($index) {
+        $self->kt->remove("$key.$index");
+    }
+    else {
+        my $data = $self->kt->match_prefix($key);
+        foreach my $val (sort keys %{$data}) {
+            $self->kt->remove($val);
+        }
     }
     return;
 }
