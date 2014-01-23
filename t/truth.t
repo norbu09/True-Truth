@@ -11,7 +11,7 @@ plan qw/no_plan/;
     my $truth = True::Truth->new();
     ok($truth);
 
-#  SKIP: {
+  SKIP: {
         eval { $truth->_connect_kt() };
 
         skip "KyotoTycoon not running", 13 if $@;
@@ -112,4 +112,4 @@ plan qw/no_plan/;
         print Dumper $d;
     }
 
-#}
+}
