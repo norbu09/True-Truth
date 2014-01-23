@@ -7,7 +7,9 @@ use MIME::Base64 qw(encode_base64 decode_base64);
 use Storable qw/nfreeze thaw/;
 use Data::Dump qw/dump/;
 
-our $VERSION = '0.8';
+# ABSTRACT: merge multiple versions of truth into one
+#
+# VERSION
 
 has 'debug' => (
     is      => 'rw',

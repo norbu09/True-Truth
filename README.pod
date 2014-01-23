@@ -4,7 +4,7 @@
 
 =head1 NAME
 
-True::Truth
+True::Truth - merge multiple versions of truth into one
 
 =head1 VERSION
 
