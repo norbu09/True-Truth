@@ -1,10 +1,11 @@
 package True::Truth;
 
 use 5.010;
-use Redis;
+use Cache::KyotoTycoon;
 use Any::Moose;
 use MIME::Base64 qw(encode_base64 decode_base64);
 use Storable qw/nfreeze thaw/;
+use Data::Dump qw/dump/;
 
 our $VERSION = '0.8';
 
@@ -15,16 +16,37 @@ has 'debug' => (
     lazy    => 1,
 );
 
-has 'redis_server' => (
+has 'kt_server' => (
     is      => 'rw',
     isa     => 'Str',
-    default => '127.0.0.1:6379',
+    default => '127.0.0.1',
 );
 
-has 'redis' => (
+has 'kt_port' => (
     is      => 'rw',
-    isa     => 'Redis',
-    builder => '_connect_redis',
+    isa     => 'Int',
+    lazy    => 1,
+    default => sub { 1978 },
+);
+
+has 'kt_db' => (
+    is      => 'rw',
+    isa     => 'Str',
+    lazy    => 1,
+    default => sub { 0 },
+);
+
+has 'kt_timeout' => (
+    is      => 'rw',
+    isa     => 'Int',
+    lazy    => 1,
+    default => sub { 5 },
+);
+
+has 'kt' => (
+    is      => 'rw',
+    isa     => 'Cache::KyotoTycoon',
+    builder => '_connect_kt',
     lazy    => 1,
 );
 
@@ -154,7 +176,7 @@ sub merge (@);
 sub merge (@) {
     shift
         unless ref $_[0]
-    ;  # Take care of the case we're called like Hash::Merge::Simple->merge(...)
+        ; # Take care of the case we're called like Hash::Merge::Simple->merge(...)
     my ($left, @right) = @_;
 
     return $left unless @right;
@@ -188,14 +210,11 @@ sub _add {
     my $idx;
     if ($index) {
         $idx = $index;
-        $self->redis->lset($key, $index, encode_base64(nfreeze($val)));
     }
     else {
-        $idx = $self->redis->rpush($key, encode_base64(nfreeze($val)));
-        $idx -= 1;
+        $idx = scalar keys $self->kt->match_prefix("$key.");
     }
-    $self->redis->expire($key, $self->expire)
-        unless $self->redis->ttl($key);
+    $self->kt->set("$key.$idx", encode_base64(nfreeze($val)), $self->expire);
     return $idx;
 }
 
@@ -203,29 +222,28 @@ sub _get {
     my ($self, $key, $index) = @_;
 
     if ($index) {
-        my $val = $self->redis->lindex($key, $index);
+        my $val = $self->kt->get("$key.$index");
         return thaw(decode_base64($val))
             if $val;
     }
     else {
-        my @data = $self->redis->lrange($key, 0, -1);
+        my $data = $self->kt->match_prefix($key);
         my @res;
-        foreach my $val (@data) {
-            push(@res, thaw(decode_base64($val)));
+        foreach my $val (keys %{$data}) {
+            push(@res, thaw(decode_base64($self->kt->get($val))));
         }
         return \@res;
     }
     return;
 }
 
-sub _connect_redis {
+sub _connect_kt {
     my ($self) = @_;
-    return Redis->new(
-        server    => $self->redis_server,
-        reconnect => 10,
-        every     => 200,
-        encoding  => undef,
-        debug     => $self->debug,
+    return Cache::KyotoTycoon->new(
+        host    => $self->kt_server,
+        port    => $self->kt_port,
+        timeout => $self->kt_timeout,
+        db      => $self->kt_db,
     );
 }
 

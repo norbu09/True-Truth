@@ -11,10 +11,10 @@ plan qw/no_plan/;
     my $truth = True::Truth->new();
     ok($truth);
 
-  SKIP: {
-        eval { $truth->_connect_redis() };
+#  SKIP: {
+        eval { $truth->_connect_kt() };
 
-        skip "Redis not running", 13 if $@;
+        skip "KyotoTycoon not running", 13 if $@;
 
         my $key = time;
         print "Key: $key\n";
@@ -112,4 +112,4 @@ plan qw/no_plan/;
         print Dumper $d;
     }
 
-}
+#}
