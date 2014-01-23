@@ -231,7 +231,7 @@ sub _get {
     else {
         my $data = $self->kt->match_prefix($key);
         my @res;
-        foreach my $val (keys %{$data}) {
+        foreach my $val (sort keys %{$data}) {
             push(@res, thaw(decode_base64($self->kt->get($val))));
         }
         return \@res;
