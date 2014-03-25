@@ -72,12 +72,13 @@ plan qw/no_plan/;
                 dns    => {
                     rr => { 'norbu09.org' => '1.2.3.4', type => 'A' },
                 },
-                status     => 'active',
+                status         => 'active',
                 _pending_count => 1,
-                _pending => [ {
+                '_pending'     => [ {
                         dns => {
                             rr => { 'norbu09.org' => '1.2.3.5', type => 'A' },
-                        }
+                            _maybe => 1,
+                        },
                     },
                 ],
             },
@@ -94,7 +95,7 @@ plan qw/no_plan/;
                 dns    => {
                     rr => { 'norbu09.org' => '1.2.3.5', type => 'A' },
                 },
-                status     => 'active',
+                status         => 'active',
                 _pending_count => 1,
             },
             "check hash structure"

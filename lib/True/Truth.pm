@@ -130,11 +130,11 @@ sub persist_pending_truth {
 
     foreach my $k (keys %$truth) {
         if (ref($truth->{$k}) eq 'HASH') {
-            delete $truth->{$k}->{_pending};
+            delete $truth->{$k}->{_maybe};
             $truth->{$k}->{_true} = 1;
         }
         else {
-            delete $truth->{_pending};
+            delete $truth->{_maybe};
             $truth->{_true} = 1;
         }
     }
@@ -169,8 +169,21 @@ sub get_true_truth {
     my $all_truth = $self->_get($key);
     # TODO needs to merge only hashes that are true already and push all
     # pending thruth facets to _pending
-    # needs a _pending_count coutner
+    my $pending_truth;
+    my $pending_counter;
+    my $counter = 0;
+    foreach my $truth (@{$all_truth}){
+        if(_is($truth, 'maybe')){
+            push(@{$pending_truth->{'_pending'}}, $truth);
+            $pending_counter ++;
+            delete $all_truth->[$counter];
+        }
+        $counter ++;
+    }
+    unshift(@{$all_truth}, $pending_truth)
+        if $pending_truth;
     my $truth     = merge(@$all_truth);
+    $truth->{_pending_count} = $pending_counter if $pending_counter;
     return $self->_clean_truth($truth);
 }
 
@@ -309,6 +322,7 @@ sub _connect_kt {
 sub _clean_truth {
     my ($self, $hash) = @_;
 
+    # TODO refactor to use new _is function
     return $hash unless ref($hash) eq 'HASH';
     foreach my $k (keys %{$hash}){
         if (ref($hash->{$k}) eq 'HASH') {
@@ -317,7 +331,7 @@ sub _clean_truth {
                     $hash->{_pending_count} ++;
                     delete $hash->{$k}->{_maybe};
                 } elsif (exists $hash->{$k}->{_true}){
-                    delete $hash->{$k}->{_maybe};
+                    delete $hash->{$k}->{_true};
                 }
             }
         }
@@ -326,11 +340,28 @@ sub _clean_truth {
                 $hash->{_pending_count} ++;
                 delete $hash->{_maybe};
             } elsif (exists $hash->{_true}){
-                delete $hash->{_maybe};
+                delete $hash->{_true};
             }
         }
     }
     return $hash;
+}
+
+sub _is {
+    my ($truth, $mode) = @_;
+
+    return unless $mode;
+
+
+    foreach my $ky (keys %$truth) {
+        if (ref($truth->{$ky}) eq 'HASH') {
+            return 1 if exists $truth->{$ky}->{'_'.$mode};
+        }
+        else {
+            return 1 if exists $truth->{'_'.$mode};
+        }
+    }
+    return;
 }
 
 =head1 AUTHOR
