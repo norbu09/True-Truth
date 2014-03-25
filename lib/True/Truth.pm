@@ -6,7 +6,7 @@ use Any::Moose;
 use MIME::Base64 qw(encode_base64 decode_base64);
 use Storable qw/nfreeze thaw/;
 use Data::Dump qw/dump/;
-use Time::HiRes qw/gettimeofday/;
+use Time::HiRes qw/time/;
 
 # ABSTRACT: merge multiple versions of truth into one
 #
@@ -112,7 +112,7 @@ sub add_pending_truth {
             $truth->{_maybe} = 1;
         }
     }
-    return int $self->_add($key, $truth);
+    return $self->_add($key, $truth);
 }
 
 =head2 persist_pending_truth
@@ -269,7 +269,7 @@ sub _add {
         $idx = $index;
     }
     else {
-        $idx = gettimeofday;
+        $idx = time;
     }
     $self->kt->set("$key.$idx", encode_base64(nfreeze($val)), $self->expire);
     return $idx;
