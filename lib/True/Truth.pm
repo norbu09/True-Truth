@@ -6,6 +6,7 @@ use Any::Moose;
 use MIME::Base64 qw(encode_base64 decode_base64);
 use Storable qw/nfreeze thaw/;
 use Data::Dump qw/dump/;
+use Time::HiRes qw/gettimeofday/;
 
 # ABSTRACT: merge multiple versions of truth into one
 #
@@ -141,6 +142,8 @@ sub persist_pending_truth {
     return;
 }
 
+# TODO add a mark_truth_failed or similar function that makes the truth
+# aware of failed facets
 =head2 remove_pending_truth
 
 needs docs
@@ -186,6 +189,21 @@ sub get_future_truth {
     my $all_truth = $self->_get($key);
     my $truth     = merge(@$all_truth);
     return $self->_clean_truth($truth);
+}
+
+
+=head2 rebase_truth
+
+Take a new 'base truth' and calculate which of the facets are already applied to this truth and which are still pending
+
+This function returns a truth hash
+
+=cut
+
+sub rebase_truth {
+    my ($self, $truth) = @_;
+
+    return;
 }
 
 =head2 merge
@@ -238,10 +256,7 @@ sub _add {
         $idx = $index;
     }
     else {
-        # FIXME this actually breaks the moment we delete a facet of
-        # truth. what we need to do is take the highest index and
-        # increment it
-        $idx = scalar keys $self->kt->match_prefix("$key.");
+        $idx = gettimeofday;
     }
     $self->kt->set("$key.$idx", encode_base64(nfreeze($val)), $self->expire);
     return $idx;

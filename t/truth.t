@@ -2,6 +2,7 @@ use Test::More;
 use Test::Deep;
 use lib 'lib';
 use Data::Dumper;
+use Time::HiRes qw/gettimeofday/;
 
 plan qw/no_plan/;
 
@@ -27,7 +28,7 @@ plan qw/no_plan/;
             { dns => { rr => { 'norbu09.org' => '1.2.3.5', type => 'A' }, } };
 
         my $z = $truth->add_true_truth($key, $a);
-        cmp_ok($z, '==', 0, "check index");
+        cmp_ok($z, '<=', gettimeofday, "check index");
         my $d = $truth->get_true_truth($key);
         ok($d);
         cmp_deeply(
@@ -41,7 +42,7 @@ plan qw/no_plan/;
         print Dumper $d;
 
         my $y = $truth->add_true_truth($key, $b);
-        cmp_ok($y, '==', 1, "check index");
+        cmp_ok($y, '<=', gettimeofday, "check index");
         $d = $truth->get_true_truth($key);
         ok($d);
         cmp_deeply(
@@ -61,7 +62,7 @@ plan qw/no_plan/;
         print Dumper $d;
 
         my $x = $truth->add_pending_truth($key, $c);
-        cmp_ok($x, '==', 2, "check index");
+        cmp_ok($x, '<=', gettimeofday, "check index");
         $d = $truth->get_true_truth($key);
         ok($d);
         cmp_deeply(
