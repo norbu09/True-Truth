@@ -105,10 +105,10 @@ sub add_pending_truth {
 
     foreach my $ky (keys %$truth) {
         if (ref($truth->{$ky}) eq 'HASH') {
-            $truth->{$ky}->{_locked} = 1;
+            $truth->{$ky}->{_maybe} = 1;
         }
         else {
-            $truth->{_locked} = 1;
+            $truth->{_maybe} = 1;
         }
     }
     return int $self->_add($key, $truth);
@@ -129,10 +129,12 @@ sub persist_pending_truth {
 
     foreach my $k (keys %$truth) {
         if (ref($truth->{$k}) eq 'HASH') {
-            delete $truth->{$k}->{_locked};
+            delete $truth->{$k}->{_pending};
+            $truth->{$k}->{_true} = 1;
         }
         else {
-            delete $truth->{_locked};
+            delete $truth->{_pending};
+            $truth->{_true} = 1;
         }
     }
     $self->_add($key, $truth, $index);
@@ -162,8 +164,28 @@ sub get_true_truth {
     my ($self, $key) = @_;
 
     my $all_truth = $self->_get($key);
+    # TODO needs to merge only hashes that are true already and push all
+    # pending thruth facets to _pending
+    # needs a _pending_count coutner
     my $truth     = merge(@$all_truth);
-    return $truth;
+    return $self->_clean_truth($truth);
+}
+
+
+=head2 get_future_truth
+
+Get the perfect truth we what to have
+
+This function returns true hash
+
+=cut
+
+sub get_future_truth {
+    my ($self, $key) = @_;
+
+    my $all_truth = $self->_get($key);
+    my $truth     = merge(@$all_truth);
+    return $self->_clean_truth($truth);
 }
 
 =head2 merge
@@ -181,6 +203,7 @@ sub merge (@) {
         ; # Take care of the case we're called like Hash::Merge::Simple->merge(...)
     my ($left, @right) = @_;
 
+    #_clean_hash($left);
     return $left unless @right;
 
     return merge($left, merge(@right)) if @right > 1;
@@ -191,6 +214,7 @@ sub merge (@) {
 
     for my $key (keys %$right) {
 
+        #_clean_hash($key);
         my ($hr, $hl) = map { ref $_->{$key} eq 'HASH' } $right, $left;
 
         if ($hr and $hl) {
@@ -214,6 +238,9 @@ sub _add {
         $idx = $index;
     }
     else {
+        # FIXME this actually breaks the moment we delete a facet of
+        # truth. what we need to do is take the highest index and
+        # increment it
         $idx = scalar keys $self->kt->match_prefix("$key.");
     }
     $self->kt->set("$key.$idx", encode_base64(nfreeze($val)), $self->expire);
@@ -262,6 +289,33 @@ sub _connect_kt {
         timeout => $self->kt_timeout,
         db      => $self->kt_db,
     );
+}
+
+sub _clean_truth {
+    my ($self, $hash) = @_;
+
+    return $hash unless ref($hash) eq 'HASH';
+    foreach my $k (keys %{$hash}){
+        if (ref($hash->{$k}) eq 'HASH') {
+            foreach my $j (keys %{$hash->{$k}}){
+                if(exists $hash->{$k}->{_maybe}){
+                    $hash->{_pending_count} ++;
+                    delete $hash->{$k}->{_maybe};
+                } elsif (exists $hash->{$k}->{_true}){
+                    delete $hash->{$k}->{_maybe};
+                }
+            }
+        }
+        else {
+            if(exists $hash->{_maybe}){
+                $hash->{_pending_count} ++;
+                delete $hash->{_maybe};
+            } elsif (exists $hash->{_true}){
+                delete $hash->{_maybe};
+            }
+        }
+    }
+    return $hash;
 }
 
 =head1 AUTHOR
